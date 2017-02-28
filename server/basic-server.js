@@ -22,8 +22,9 @@ var ip = '127.0.0.1';
 // incoming requests.
 //
 // After creating the server, we will tell it to listen on the given port and IP. */
-var handleRequest = require('./server/spec/basic-server.js');
-var server = http.createServer(handleRequest);
+var handleRequest = require('./request-handler.js');
+console.log(handleRequest);
+var server = http.createServer(handleRequest.requestHandler);
 console.log('Listening on http://' + ip + ':' + port);
 server.listen(port, ip);
 

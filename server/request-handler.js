@@ -13,8 +13,9 @@ this file and include it in basic-server.js so that it actually works.
 **************************************************************/
 var results = []; 
 var requestHandler = function(request, response) {
+  // console.log(response, 'response');
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
-
+  // console.log(request, 'REQUEST');
   var headers = defaultCorsHeaders;
   headers['Content-Type'] = 'application/json';
   var method = request.method;
@@ -22,38 +23,36 @@ var requestHandler = function(request, response) {
   var body = [];
   var statusCode; 
 
-  if (method === 'POST') {
-    statusCode = 201; 
-    var jsonString = '';
-    request.on('data', function(chunk) {
-      body.push(chunk); 
-    }).on('end', function() {
-      body = Buffer.concat(body).toString();
-      console.log(body, 'new body');
-      results.push(JSON.parse(body));
-    });
-  }
-  
-
   // if (method === 'POST') {
   //   statusCode = 201; 
   //   var jsonString = '';
   //   request.on('data', function(chunk) {
-  //     jsonString += chunk; // concat chunk 
-  //     body.push(jsonString);
-  //     results.push(JSON.parse(body)); //WHY ARE WE JSON.PARSING HERE?
+  //     body.push(JSON.parse(chunk)); 
+  //     console.log(body);
   //   });
-  // } 
-  // if (method === 'POST') {
-  //   statusCode = 201; 
-  //   request.on('data', function(chunk) {
-  //     body.push(chunk);
-  //     results = Buffer.concat(body).toString();
+  //   request.on('end', function() {
+  //     body = Buffer.concat(body).toString();
+  //     // console.log(body, 'new body');
+  //     results.push(JSON.parse(body));
   //   });
-  // } 
-
-  if (method === 'GET') {
-    statusCode = 200; 
+  // }
+  if (request.url === '/classes/messages') {
+    console.log('request is to classes/messages');
+    if (method === 'POST') {
+      statusCode = 201; 
+      var jsonString = '';
+      request.on('data', function(chunk) {
+        jsonString += chunk; // concat chunk 
+        body.push(jsonString);
+        results.push(JSON.parse(body)); 
+      });
+    } 
+    if (method === 'GET') {
+      statusCode = 200; 
+    }
+  } else {
+    console.log('request is to other error');
+    statusCode = 404;
   }
 
   var responseBody = {
@@ -62,9 +61,10 @@ var requestHandler = function(request, response) {
     url: url,
     results: results
   };
-  console.log(responseBody);
+
+  // console.log(responseBody, 'response body');
   response.writeHead(statusCode, headers); 
-  response.end(JSON.stringify({results: results}));
+  response.end(JSON.stringify(responseBody));
 };
 
 var defaultCorsHeaders = {
